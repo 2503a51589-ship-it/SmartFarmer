@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}System Admin Dashboard - SIH26032{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <div class="dashboard-sidebar">
+        <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+            <div class="stat-icon bg-success text-white"><i class="bi bi-shield-lock-fill"></i></div>
+            <div>
+                <h6 class="mb-0 fw-bold">{{ admin.full_name if admin else 'System Administrator' }}</h6>
+                <small class="text-muted">Procurement Dept Head</small>
+            </div>
+        </div>
+        <div class="nav flex-column">
+            <a href="{{ url_for('admin_dashboard') }}" class="sidebar-nav-item active"><i class="bi bi-speedometer2"></i> Admin KPIs & Charts</a>
+            <a href="{{ url_for('manage_farmers') }}" class="sidebar-nav-item"><i class="bi bi-people"></i> Manage Farmers</a>
+            <a href="{{ url_for('manage_centers') }}" class="sidebar-nav-item"><i class="bi bi-buildings"></i> Procurement Centers</a>
+            <a href="{{ url_for('manage_slots') }}" class="sidebar-nav-item"><i class="bi bi-calendar3"></i> Slot Management</a>
+            <a href="{{ url_for('admin_procurement_records') }}" class="sidebar-nav-item"><i class="bi bi-card-checklist"></i> All Procurement Logs</a>
+            <a href="{{ url_for('admin_payments') }}" class="sidebar-nav-item"><i class="bi bi-cash-coin"></i> DBT Payment Ledger</a>
+            <a href="{{ url_for('reports') }}" class="sidebar-nav-item"><i class="bi bi-bar-chart-line"></i> Reports & Statistics</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold text-success mb-0">Agricultural Procurement Command Center</h3>
+                <p class="text-muted small mb-0">State-level real-time queue congestion monitoring and MSP procurement governance</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('manage_slots') }}" class="btn btn-outline-success btn-sm"><i class="bi bi-calendar-plus me-1"></i> New Center Slot</a>
+                <a href="{{ url_for('reports') }}" class="btn btn-success btn-sm fw-bold"><i class="bi bi-file-earmark-pdf me-1"></i> Export Reports</a>
+            </div>
+        </div>
+
+        <!-- 5 Main KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl">
+                <div class="card-custom stat-card p-3 h-100">
+                    <span class="text-muted small fw-semibold">Total Registered Farmers</span>
+                    <h3 class="fw-bold my-1 text-dark">{{ total_farmers }}</h3>
+                    <small class="text-success"><i class="bi bi-person-check"></i> Across 6 districts</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl">
+                <div class="card-custom stat-card stat-info p-3 h-100">
+                    <span class="text-muted small fw-semibold">Active Centers</span>
+                    <h3 class="fw-bold my-1 text-primary">{{ total_centers }}</h3>
+                    <small class="text-muted">Mandi & PACS Hubs</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl">
+                <div class="card-custom stat-card stat-warning p-3 h-100">
+                    <span class="text-muted small fw-semibold">Today's Bookings</span>
+                    <h3 class="fw-bold my-1 text-warning-emphasis">{{ today_bookings_count }}</h3>
+                    <small class="text-muted">Active tokens generated</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl">
+                <div class="card-custom stat-card stat-danger p-3 h-100">
+                    <span class="text-muted small fw-semibold">Waiting in Queue</span>
+                    <h3 class="fw-bold my-1 text-danger">{{ waiting_farmers_count }}</h3>
+                    <small class="text-danger"><i class="bi bi-hourglass-split"></i> Real-time line</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl">
+                <div class="card-custom stat-card stat-success p-3 h-100">
+                    <span class="text-muted small fw-semibold">Procurements Done</span>
+                    <h3 class="fw-bold my-1 text-success">{{ completed_procurements_count }}</h3>
+                    <small class="text-success"><i class="bi bi-check2-all"></i> DBT Transferred</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 Chart.js Visualizations -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="card-custom p-4 bg-white shadow-sm h-100">
+                    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart-fill text-success me-2"></i>Daily Farmer Bookings Trend</h6>
+                    <canvas id="dailyBookingsChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card-custom p-4 bg-white shadow-sm h-100">
+                    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-pie-chart-fill text-warning me-2"></i>Crop-wise Procurement Share (Quintals)</h6>
+                    <canvas id="cropProcurementChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card-custom p-4 bg-white shadow-sm h-100">
+                    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-diagram-3 text-primary me-2"></i>Center-wise Queue Congestion Comparison</h6>
+                    <canvas id="centerQueueChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card-custom p-4 bg-white shadow-sm h-100">
+                    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-cash-stack text-success me-2"></i>Direct Benefit Transfer (DBT) Payout Status</h6>
+                    <canvas id="paymentStatusChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Congestion Heatmap Table -->
+        <div class="card-custom p-4 bg-white shadow-sm">
+            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-cpu-fill text-success me-2"></i>Live Center Queue & Congestion AI Status</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Center Name</th>
+                            <th>District</th>
+                            <th>Active Counters</th>
+                            <th>Waiting Farmers</th>
+                            <th>Est. Wait Time</th>
+                            <th>Congestion Level</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in center_analyses %}
+                        <tr>
+                            <td><strong>{{ c.center_name }}</strong></td>
+                            <td>{{ c.district if c.district else 'Gujarat' }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ c.total_counters }} Counters</span></td>
+                            <td><span class="fw-bold fs-6">{{ c.waiting_farmers }}</span> farmers</td>
+                            <td><strong>{{ c.estimated_wait_time }} mins</strong></td>
+                            <td>
+                                <span class="congestion-badge {{ 'congestion-low' if c.congestion.level == 'LOW CONGESTION' else ('congestion-medium' if c.congestion.level == 'MEDIUM CONGESTION' else 'congestion-high') }}">
+                                    <i class="bi {{ c.congestion.icon }}"></i> {{ c.congestion.level }}
+                                </span>
+                            </td>
+                            <td><span class="badge bg-success">Online</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const analytics = {{ analytics_data | tojson | safe }};
+    initAdminCharts(analytics);
+});
+</script>
+{% endblock %}

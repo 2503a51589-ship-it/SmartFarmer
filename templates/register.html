@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Farmer Registration - SIH26032{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+                <div class="text-center mb-4">
+                    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold mb-2">KISAN REGISTRATION</span>
+                    <h2 class="fw-bold text-success">New Farmer Enrollment</h2>
+                    <p class="text-muted small">Register to book procurement slots and track real-time queue tokens</p>
+                </div>
+
+                <form action="{{ url_for('register') }}" method="POST">
+                    <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-person-lines-fill text-success me-2"></i> Personal & Location Details</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Full Name (As per Bank Account) <span class="text-danger">*</span></label>
+                            <input type="text" name="full_name" class="form-control" placeholder="e.g. Ramesh Kumar Solanki" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Mobile Number <span class="text-danger">*</span></label>
+                            <input type="tel" name="mobile_number" class="form-control" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Village <span class="text-danger">*</span></label>
+                            <input type="text" name="village" class="form-control" placeholder="e.g. Boriavi" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">District <span class="text-danger">*</span></label>
+                                                        <input type="text" name="district" class="form-control" placeholder="e.g. Anand" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Total Land Size (Acres)</label>
+                            <input type="number" step="0.1" name="land_size_acres" class="form-control" placeholder="e.g. 5.5" value="4.0">
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-bank text-primary me-2"></i> Bank & DBT Details (For Direct Payment)</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Bank Account Number <span class="text-danger">*</span></label>
+                            <input type="text" name="bank_account_no" class="form-control" placeholder="e.g. 41289110294" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Bank IFSC Code <span class="text-danger">*</span></label>
+                            <input type="text" name="ifsc_code" class="form-control" placeholder="e.g. SBIN0001234" required>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-shield-lock text-warning me-2"></i> Portal Account Setup</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Choose Username <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" placeholder="e.g. ramesh_farmer" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Choose Password <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control" placeholder="At least 6 characters" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm"><i class="bi bi-check2-circle me-2"></i> Complete Farmer Registration</button>
+                </form>
+
+                <div class="text-center mt-3 small text-muted">
+                    Already registered? <a href="{{ url_for('login') }}" class="text-success fw-bold text-decoration-none">Sign In here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

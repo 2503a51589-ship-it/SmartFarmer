@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}DBT Payment Management - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold">DBT FINANCIALS</span>
+                <h3 class="fw-bold text-success mb-0"><i class="bi bi-cash-coin me-2"></i>Direct Benefit Transfer (DBT) Ledger</h3>
+            </div>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Farmer Details</th>
+                        <th>Crop & Qty</th>
+                        <th>MSP Rate</th>
+                        <th>Total Amount</th>
+                        <th>DBT Status</th>
+                        <th>Transaction Ref</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td>#{{ p.id }}</td>
+                        <td>
+                            <strong>{{ p.full_name }}</strong><br>
+                            <small class="text-muted">A/C: {{ p.bank_account_no }} ({{ p.ifsc_code }})</small>
+                        </td>
+                        <td>{{ p.crop_name }} ({{ p.final_accepted_quantity }} Qtl)</td>
+                        <td>₹{{ "{:,.2f}".format(p.msp_rate) }}</td>
+                        <td><strong class="text-success fs-6">₹{{ "{:,.2f}".format(p.total_amount) }}</strong></td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if p.payment_status == 'Credited' else ('warning text-dark' if p.payment_status == 'Processing' else 'secondary') }}">
+                                {{ p.payment_status }}
+                            </span>
+                        </td>
+                        <td><code>{{ p.transaction_ref or 'PENDING' }}</code></td>
+                        <td>
+                            {% if p.payment_status != 'Credited' %}
+                            <form action="{{ url_for('admin_update_payment', payment_id=p.id) }}" method="POST">
+                                <button type="submit" class="btn btn-sm btn-success fw-bold"><i class="bi bi-send-check"></i> Transfer DBT</button>
+                            </form>
+                            {% else %}
+                            <span class="badge bg-success-subtle text-success"><i class="bi bi-check-all"></i> Settled</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="8" class="text-center py-4 text-muted">No payment records found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

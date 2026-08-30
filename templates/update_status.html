@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Update Procurement Status - SIH26032{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 flex-wrap gap-2">
+                    <div>
+                        <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-1 rounded-pill fw-bold">OPERATOR ACTION</span>
+                        <h3 class="fw-bold text-success mb-0"><i class="bi bi-pencil-square me-2"></i>Update Procurement & Quality Inspection</h3>
+                    </div>
+                    <a href="{{ url_for('operator_dashboard') }}" class="btn btn-outline-secondary btn-sm">Cancel</a>
+                </div>
+
+                <div class="row g-3 bg-light p-3 rounded mb-4">
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Token Number</small>
+                        <h4 class="fw-bold text-success mb-0">{{ booking.token_number }}</h4>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Farmer Name</small>
+                        <strong>{{ booking.full_name }}</strong>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Declared Crop</small>
+                        <strong>{{ booking.crop_name }} ({{ booking.crop_quantity }} Qtl)</strong>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Govt MSP Rate</small>
+                        <strong class="text-success">₹{{ booking.msp_per_quintal }} / Qtl</strong>
+                    </div>
+                </div>
+
+                <form action="{{ url_for('update_procurement_status', booking_id=booking.id) }}" method="POST" id="procure_form">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-speedometer2 text-primary me-2"></i> Stage Transition & Weighbridge Metrics</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Update Status <span class="text-danger">*</span></label>
+                            <select name="status" class="form-select" required>
+                                <option value="Booked" {% if booking.status == 'Booked' %}selected{% endif %}>Booked</option>
+                                <option value="Arrived" {% if booking.status == 'Arrived' %}selected{% endif %}>Arrived at Center</option>
+                                <option value="Weighing" {% if booking.status == 'Weighing' %}selected{% endif %}>Weighing in Progress</option>
+                                <option value="Quality Checking" {% if booking.status == 'Quality Checking' %}selected{% endif %}>Quality Checking</option>
+                                <option value="Accepted" {% if booking.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                                <option value="Rejected" {% if booking.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                <option value="Procurement Completed" {% if booking.status == 'Procurement Completed' %}selected{% endif %}>Procurement Completed & Trigger DBT</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Actual Weighbridge Quantity (Quintals) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" name="actual_quantity" id="actual_qty" class="form-control" value="{{ record.actual_quantity if record else booking.crop_quantity }}" required>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-3 border-top pt-3"><i class="bi bi-patch-check text-success me-2"></i> Quality Inspection & Deductions</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Quality Grade</label>
+                            <select name="quality_grade" class="form-select">
+                                <option value="Grade A" {% if record and record.quality_grade == 'Grade A' %}selected{% endif %}>Grade A (Premium)</option>
+                                <option value="Grade B" {% if record and record.quality_grade == 'Grade B' %}selected{% endif %}>Grade B (Standard FAQ)</option>
+                                <option value="Grade C" {% if record and record.quality_grade == 'Grade C' %}selected{% endif %}>Grade C (Fair)</option>
+                                <option value="Sub-standard" {% if record and record.quality_grade == 'Sub-standard' %}selected{% endif %}>Sub-standard (Rejection)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Moisture Content (%)</label>
+                            <input type="number" step="0.1" name="moisture_content" class="form-control" value="{{ record.moisture_content if record else 11.8 }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Deduction Percentage (%)</label>
+                            <input type="number" step="0.5" name="deduction_percentage" id="deduction_pct" class="form-control" value="{{ record.deduction_percentage if record else 0.0 }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Operator Inspection Remarks</label>
+                            <textarea name="remarks" class="form-control" rows="2" placeholder="e.g. Moisture within 12% limit, good kernel quality, standard gunny bags used.">{{ record.remarks if record else '' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success py-2 px-3 small mb-4" id="net_msp_preview">
+                        <strong>Calculated Net Payout:</strong> Ready for approval under Govt DBT Scheme.
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                        <a href="{{ url_for('operator_dashboard') }}" class="btn btn-light px-4">Back</a>
+                        <button type="submit" class="btn btn-success px-5 fw-bold shadow-sm"><i class="bi bi-check2-circle me-2"></i> Save & Submit Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

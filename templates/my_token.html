@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Digital Token Slip - SIH26032{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print" style="max-width: 650px; margin: 0 auto;">
+        <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Dashboard</a>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('queue_status') }}" class="btn btn-outline-success btn-sm"><i class="bi bi-list-ol me-1"></i> Track Live Queue</a>
+            <button onclick="window.print()" class="btn btn-success btn-sm fw-bold"><i class="bi bi-printer me-1"></i> Print / Download Slip</button>
+        </div>
+    </div>
+
+    {% if booking %}
+    <div class="token-slip">
+        <!-- Official Header -->
+        <div class="text-center border-bottom pb-3 mb-3">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Emblem" width="48" height="48" class="mb-2">
+            <h5 class="fw-bold text-success mb-0">GOVERNMENT OF INDIA</h5>
+            <small class="text-muted text-uppercase letter-spacing-1">Digital Crop Procurement Token Slip (SIH26032)</small>
+        </div>
+
+        <!-- Token Number Display -->
+        <div class="text-center my-3">
+            <span class="text-muted small d-block">APPOINTMENT TOKEN NUMBER</span>
+            <div class="token-big-badge my-2">{{ booking.token_number }}</div>
+            <div class="badge bg-success-subtle text-success px-3 py-1">Booking Ref: <strong>{{ booking.booking_ref }}</strong></div>
+        </div>
+
+        <!-- Appointment Details -->
+        <div class="table-responsive my-3">
+            <table class="table table-sm table-borderless small mb-0">
+                <tbody>
+                    <tr>
+                        <td class="text-muted" width="40%">Farmer Name:</td>
+                        <td class="fw-bold">{{ booking.full_name }} ({{ booking.farmer_uid }})</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Mobile Number:</td>
+                        <td class="fw-bold">+91 {{ booking.mobile_number }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Procurement Center:</td>
+                        <td class="fw-bold text-success">{{ booking.center_name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Center Address:</td>
+                        <td>{{ booking.center_address }}, {{ booking.district }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Appointment Date:</td>
+                        <td class="fw-bold text-primary">{{ booking.slot_date }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Allocated Time Slot:</td>
+                        <td class="fw-bold">{{ booking.start_time }} to {{ booking.end_time }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Crop / Quantity:</td>
+                        <td class="fw-bold">{{ booking.crop_name }} • {{ booking.crop_quantity }} Quintals</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Govt MSP Rate:</td>
+                        <td class="fw-bold text-success">₹{{ booking.msp_per_quintal }}/Quintal</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Current Status:</td>
+                        <td><span class="badge bg-warning text-dark">{{ booking.status }}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Simulated Security QR Code & Barcode -->
+        <div class="text-center border-top pt-3 mt-3">
+            <div class="d-flex justify-content-center align-items-center gap-3">
+                <div style="border: 2px solid #000; padding: 6px; border-radius: 4px; display: inline-block;">
+                    <div style="width: 60px; height: 60px; background: repeating-linear-gradient(45deg, #000, #000 5px, #fff 5px, #fff 10px);"></div>
+                </div>
+                <div class="text-start small">
+                    <span class="fw-bold d-block">DIGITALLY VERIFIED TOKEN</span>
+                    <span class="text-muted" style="font-size: 0.75rem;">Scan at center gate for instant weighbridge entry</span>
+                </div>
+            </div>
+            <p class="text-muted mt-3 mb-0" style="font-size: 0.75rem;">* Please arrive 15 minutes before your time slot. Bring Bank Passbook & Aadhaar card copy.</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <h4 class="text-muted">No active token found</h4>
+        <a href="{{ url_for('book_slot') }}" class="btn btn-success mt-2">Book Slot Now</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

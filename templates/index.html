@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Smart Farmer Procurement & Queue System - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section text-center">
+    <div class="container py-4">
+        <span class="hero-badge mb-3"><i class="bi bi-award-fill"></i> Government of India • SIH26032 Initiative</span>
+        <h1 class="display-4 fw-bold mb-3">Smart Farmer Procurement & Queue System</h1>
+        <p class="lead mb-4 mx-auto" style="max-width: 800px; color: #e2e8f0;">
+            Book your procurement slot, avoid long queues, and track your crop procurement in real time.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('login') }}" class="btn btn-success btn-lg px-4 shadow"><i class="bi bi-box-arrow-in-right me-2"></i> Farmer Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-warning btn-lg px-4 shadow text-dark fw-bold"><i class="bi bi-person-plus me-2"></i> Farmer Registration</a>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Live Smart Recommendation Preview Banner -->
+    {% if smart_rec %}
+    <div class="smart-recommendation-card p-4 mb-5 shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-success"><i class="bi bi-cpu-fill me-1"></i> SIH SMART QUEUE AI</span>
+                    <span class="congestion-badge congestion-low"><i class="bi bi-check-circle-fill"></i> {{ smart_rec.congestion_level }}</span>
+                </div>
+                <h4 class="fw-bold text-success mb-1">Recommended Center: {{ smart_rec.center_name }}</h4>
+                <p class="text-secondary mb-2">{{ smart_rec.reason }}</p>
+                <div class="d-flex gap-4 small fw-semibold">
+                    <div><i class="bi bi-people-fill text-primary me-1"></i> Current Queue: <span class="text-dark">{{ smart_rec.current_queue }} farmers</span></div>
+                    <div><i class="bi bi-clock-history text-warning me-1"></i> Estimated Waiting Time: <span class="text-dark">{{ smart_rec.estimated_waiting_time }} mins</span></div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a href="{{ url_for('book_slot') }}" class="btn btn-success px-4 fw-bold shadow-sm"><i class="bi bi-calendar-check me-2"></i> Book This Center</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- How It Works Section -->
+    <div class="text-center mb-5">
+        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold">SIMPLE 4-STEP PROCESS</span>
+        <h2 class="fw-bold mt-2">How It Works</h2>
+        <p class="text-muted">Fast, transparent, and hassle-free government crop procurement</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card-custom h-100 p-4 text-center">
+                <div class="stat-icon bg-success-subtle text-success mx-auto mb-3"><i class="bi bi-person-vcard"></i></div>
+                <h5 class="fw-bold">1. Register & Select Crop</h5>
+                <p class="text-muted small">Register with your Farmer UID, select crop type (Wheat, Paddy, Oilseeds), and enter estimated yield in Quintals.</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom h-100 p-4 text-center">
+                <div class="stat-icon bg-warning-subtle text-warning mx-auto mb-3"><i class="bi bi-calendar2-range"></i></div>
+                <h5 class="fw-bold">2. Book Slot & Get Token</h5>
+                <p class="text-muted small">Choose your nearest Mandi/PACS center, select convenient date and time window, and instantly generate digital Token (e.g. A104).</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom h-100 p-4 text-center">
+                <div class="stat-icon bg-info-subtle text-info mx-auto mb-3"><i class="bi bi-hourglass-split"></i></div>
+                <h5 class="fw-bold">3. Smart Queue Tracking</h5>
+                <p class="text-muted small">Check live queue status and predicted waiting time from home. Arrive right when your turn is approaching.</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom h-100 p-4 text-center">
+                <div class="stat-icon bg-primary-subtle text-primary mx-auto mb-3"><i class="bi bi-cash-coin"></i></div>
+                <h5 class="fw-bold">4. Weighing & Direct DBT</h5>
+                <p class="text-muted small">Instant weighbridge & quality verification at the center, followed by guaranteed MSP payment credit directly to your bank.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Features & Benefits Section -->
+    <div class="row g-4 align-items-center mb-5">
+        <div class="col-lg-6">
+            <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-2 rounded-pill fw-bold">KEY FEATURES</span>
+            <h2 class="fw-bold mt-2">Why Indian Farmers Choose Smart e-Procurement</h2>
+            <div class="mt-4">
+                <div class="d-flex gap-3 mb-3">
+                    <div class="text-success fs-3"><i class="bi bi-lightning-charge-fill"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Zero Congestion & Minimal Mandi Waiting</h6>
+                        <p class="text-muted small mb-0">Our AI algorithm balances traffic across nearby procurement centers, preventing 8-12 hour vehicle pileups at mandis.</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 mb-3">
+                    <div class="text-success fs-3"><i class="bi bi-shield-lock-fill"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">100% MSP Guarantee & Transparent Quality Grading</h6>
+                        <p class="text-muted small mb-0">Direct government fixed MSP rates with digital quality testing logs (moisture content, deductions, weight certification).</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-3">
+                    <div class="text-success fs-3"><i class="bi bi-phone-fill"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Live Mobile Queue Position Updates</h6>
+                        <p class="text-muted small mb-0">Check live position (e.g. 2 people ahead, 16 mins wait time) from your smartphone without standing in hot sun.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card-custom p-4 bg-white shadow-sm border">
+                <h5 class="fw-bold text-success mb-3"><i class="bi bi-geo-alt-fill me-2"></i>Active Regional Procurement Centers</h5>
+                <div class="list-group list-group-flush">
+                    {% for c in centers %}
+                    <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{ c.center_name }}</h6>
+                            <small class="text-muted"><i class="bi bi-pin-map"></i> {{ c.district }}, {{ c.state }} • {{ c.total_counters }} Active Counters</small>
+                        </div>
+                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">Active</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Manage Procurement Centers - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold">CENTER CONFIGURATION</span>
+                <h3 class="fw-bold text-success mb-0"><i class="bi bi-buildings me-2"></i>Procurement Centers (Mandis & PACS)</h3>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addCenterModal">
+                    <i class="bi bi-plus-circle me-1"></i> Add New Center
+                </button>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Center Code</th>
+                        <th>Center Name</th>
+                        <th>District / State</th>
+                        <th>Active Counters</th>
+                        <th>Avg Processing Speed</th>
+                        <th>Contact Phone</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in centers %}
+                    <tr>
+                        <td><code>{{ c.center_code }}</code></td>
+                        <td><strong>{{ c.center_name }}</strong><br><small class="text-muted">{{ c.address }}</small></td>
+                        <td>{{ c.district }}, {{ c.state }}</td>
+                        <td><span class="badge bg-primary">{{ c.total_counters }} Counters</span></td>
+                        <td>{{ c.avg_processing_time_mins }} mins / farmer</td>
+                        <td>{{ c.contact_phone }}</td>
+                        <td><span class="badge bg-success">Active</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Center Modal -->
+<div class="modal fade" id="addCenterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('manage_centers') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-success">Add New Procurement Center</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Center Name</label>
+                        <input type="text" name="center_name" class="form-control" placeholder="e.g. Surat Krishi Upaj Mandi" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Center Code</label>
+                        <input type="text" name="center_code" class="form-control" placeholder="e.g. CTR-SUR-06" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">District</label>
+                            <input type="text" name="district" class="form-control" placeholder="e.g. Surat" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Total Counters</label>
+                            <input type="number" name="total_counters" class="form-control" value="3" min="1" max="20" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Physical Address</label>
+                        <textarea name="address" class="form-control" rows="2" placeholder="Full address" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Contact Phone</label>
+                        <input type="text" name="contact_phone" class="form-control" placeholder="e.g. 0261-2891234">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success fw-bold">Create Center</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

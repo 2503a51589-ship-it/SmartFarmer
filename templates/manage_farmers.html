@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Manage Farmers - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold">KISAN DIRECTORY</span>
+                <h3 class="fw-bold text-success mb-0"><i class="bi bi-people me-2"></i>Registered Farmers Management</h3>
+            </div>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Farmer UID</th>
+                        <th>Full Name</th>
+                        <th>Mobile</th>
+                        <th>Village & District</th>
+                        <th>Land (Acres)</th>
+                        <th>Bank A/C & IFSC</th>
+                        <th>Enrolled Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in farmers %}
+                    <tr>
+                        <td><span class="badge bg-dark">{{ f.farmer_uid }}</span></td>
+                        <td><strong>{{ f.full_name }}</strong></td>
+                        <td>+91 {{ f.mobile_number }}</td>
+                        <td>{{ f.village }}, {{ f.district }}</td>
+                        <td>{{ f.land_size_acres }} Acres</td>
+                        <td><small>{{ f.bank_account_no }}<br>IFSC: {{ f.ifsc_code }}</small></td>
+                        <td><small class="text-muted">{{ f.created_at }}</small></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="text-center py-4 text-muted">No farmers registered yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

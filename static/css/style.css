@@ -1,0 +1,398 @@
+/* ==========================================================================
+   SIH26032: Smart Farmer Procurement & Queue System
+   Government Agriculture & Farmer Welfare Theme (Modern Green & Clean White)
+   ========================================================================== */
+
+:root {
+    --primary-green: #1b5e20;
+    --primary-light: #2e7d32;
+    --primary-dark: #0f3e13;
+    --accent-gold: #f59e0b;
+    --accent-amber: #d97706;
+    --bg-light: #f4f7f4;
+    --card-bg: #ffffff;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --success-green: #10b981;
+    --warning-yellow: #f59e0b;
+    --danger-red: #ef4444;
+    --sidebar-width: 260px;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---------------- Top Navbar ---------------- */
+.navbar-govt {
+    background: linear-gradient(135deg, #134e19 0%, #1b5e20 100%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    padding: 0.75rem 1.5rem;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.govt-tag {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* ---------------- Hero Section ---------------- */
+.hero-section {
+    background: linear-gradient(rgba(15, 62, 19, 0.88), rgba(27, 94, 32, 0.85)), url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1600&q=80') center/cover;
+    color: white;
+    padding: 4.5rem 1rem;
+    position: relative;
+}
+
+.hero-badge {
+    background-color: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fde047;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ---------------- Cards & Layout ---------------- */
+.card-custom {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card {
+    border-left: 4px solid var(--primary-green);
+}
+
+.stat-card.stat-warning {
+    border-left-color: var(--accent-gold);
+}
+
+.stat-card.stat-info {
+    border-left-color: #0284c7;
+}
+
+.stat-card.stat-success {
+    border-left-color: var(--success-green);
+}
+
+.stat-card.stat-danger {
+    border-left-color: var(--danger-red);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* ---------------- Smart Queue Prediction Components ---------------- */
+.smart-recommendation-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 2px solid #86efac;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+}
+
+.smart-recommendation-card::before {
+    content: "AI OPTIMIZED";
+    position: absolute;
+    top: 12px;
+    right: -28px;
+    background: #16a34a;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 30px;
+    transform: rotate(45deg);
+    letter-spacing: 0.5px;
+}
+
+.congestion-badge {
+    padding: 0.35rem 0.85rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+}
+
+.congestion-low {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+}
+
+.congestion-medium {
+    background-color: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fcd34d;
+}
+
+.congestion-high {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+}
+
+/* ---------------- Visual Queue Pipeline ---------------- */
+.queue-pipeline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    padding: 1.5rem;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.queue-node {
+    flex: 1 1 160px;
+    min-width: 140px;
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid #e2e8f0;
+    background: #f8fafc;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.queue-node.completed {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+    opacity: 0.75;
+}
+
+.queue-node.in-process {
+    border-color: #0284c7;
+    background: #f0f9ff;
+    box-shadow: 0 0 12px rgba(2, 132, 199, 0.25);
+    animation: pulse-glow 2s infinite;
+}
+
+.queue-node.current-farmer {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    border-width: 3px;
+    box-shadow: 0 0 15px rgba(22, 163, 74, 0.3);
+}
+
+.queue-node.waiting {
+    border-color: #fcd34d;
+    background: #fffbeb;
+}
+
+@keyframes pulse-glow {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+.queue-arrow {
+    font-size: 1.25rem;
+    color: #94a3b8;
+}
+
+/* ---------------- Timeline Steps ---------------- */
+.timeline-stepper {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 2rem 0;
+}
+
+.timeline-stepper::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    right: 40px;
+    height: 4px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.timeline-step {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    flex: 1;
+}
+
+.timeline-step-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 8px;
+    transition: all 0.3s;
+}
+
+.timeline-step.active .timeline-step-icon {
+    background: var(--primary-green);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(27, 94, 32, 0.2);
+}
+
+.timeline-step.done .timeline-step-icon {
+    background: var(--success-green);
+    color: white;
+}
+
+.timeline-step-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* ---------------- Printable Token Slip ---------------- */
+.token-slip {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    border: 2px dashed #94a3b8;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+}
+
+.token-big-badge {
+    font-size: 2.75rem;
+    font-weight: 900;
+    color: var(--primary-green);
+    letter-spacing: 2px;
+    line-height: 1;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--primary-green);
+    border-radius: 8px;
+    display: inline-block;
+    background: #f0fdf4;
+}
+
+/* ---------------- Sidebar Navigation ---------------- */
+.dashboard-layout {
+    display: flex;
+    min-height: calc(100vh - 70px);
+}
+
+.dashboard-sidebar {
+    width: var(--sidebar-width);
+    background: #ffffff;
+    border-right: 1px solid var(--border-color);
+    padding: 1.5rem 1rem;
+    flex-shrink: 0;
+}
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: 4px;
+    transition: all 0.2s;
+}
+
+.sidebar-nav-item:hover {
+    background-color: #f1f5f9;
+    color: var(--primary-green);
+}
+
+.sidebar-nav-item.active {
+    background-color: #e8f5e9;
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+.dashboard-content {
+    flex-grow: 1;
+    padding: 2rem;
+    background-color: var(--bg-light);
+    overflow-x: hidden;
+}
+
+/* Responsive sidebar */
+@media (max-width: 991px) {
+    .dashboard-layout {
+        flex-direction: column;
+    }
+    .dashboard-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 0.75rem;
+    }
+    .dashboard-sidebar .nav {
+        flex-direction: row !important;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+    .sidebar-nav-item {
+        white-space: nowrap;
+    }
+    .dashboard-content {
+        padding: 1rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .no-print, .navbar-govt, .dashboard-sidebar, footer {
+        display: none !important;
+    }
+    .token-slip {
+        border: 2px solid #000;
+        box-shadow: none;
+        max-width: 100%;
+    }
+    body {
+        background: white;
+    }
+}

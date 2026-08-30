@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Farmer Verification Details - SIH26032{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                    <div>
+                        <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill fw-bold">VERIFICATION DESK</span>
+                        <h3 class="fw-bold text-dark mb-0"><i class="bi bi-person-badge me-2"></i>Farmer Record Verification</h3>
+                    </div>
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Go Back</a>
+                </div>
+
+                <div class="row g-3 bg-light p-3 rounded mb-4">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Farmer Registration UID</small>
+                        <h5 class="fw-bold text-success mb-0">{{ farmer.farmer_uid }}</h5>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Full Legal Name</small>
+                        <h5 class="fw-bold text-dark mb-0">{{ farmer.full_name }}</h5>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Contact Phone</small>
+                        <strong>+91 {{ farmer.mobile_number }}</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Land Holding</small>
+                        <strong>{{ farmer.land_size_acres }} Acres (Village: {{ farmer.village }}, {{ farmer.district }})</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Bank Account Number</small>
+                        <strong>{{ farmer.bank_account_no }}</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Bank IFSC Code</small>
+                        <strong>{{ farmer.ifsc_code }}</strong>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-dark mb-3">Procurement History for this Farmer</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Booking Ref</th>
+                                <th>Date</th>
+                                <th>Crop</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in bookings %}
+                            <tr>
+                                <td><code>{{ b.booking_ref }}</code></td>
+                                <td>{{ b.slot_date }}</td>
+                                <td>{{ b.crop_name }}</td>
+                                <td>{{ b.crop_quantity }} Qtl</td>
+                                <td><span class="badge bg-secondary">{{ b.status }}</span></td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-center py-2 text-muted">No prior bookings.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

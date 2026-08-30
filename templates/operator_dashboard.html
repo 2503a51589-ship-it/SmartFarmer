@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Procurement Operator Console - SIH26032{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <div class="dashboard-sidebar">
+        <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+            <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-person-badge"></i></div>
+            <div>
+                <h6 class="mb-0 fw-bold">{{ operator.full_name }}</h6>
+                <small class="text-muted">{{ operator.badge_id }} • Counter {{ operator.assigned_counter }}</small>
+            </div>
+        </div>
+        <div class="nav flex-column">
+            <a href="{{ url_for('operator_dashboard') }}" class="sidebar-nav-item active"><i class="bi bi-speedometer2"></i> Live Console</a>
+            <a href="{{ url_for('todays_queue') }}" class="sidebar-nav-item"><i class="bi bi-list-ol"></i> Today's Queue Management</a>
+            <a href="{{ url_for('admin_procurement_records') }}" class="sidebar-nav-item"><i class="bi bi-journal-check"></i> Center Records</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold text-success mb-0">Procurement Counter Console</h3>
+                <p class="text-muted small mb-0">Assigned Center: <strong>{{ center.center_name }}</strong> (Code: <code>{{ center.center_code }}</code>)</p>
+            </div>
+            <div class="d-flex gap-2">
+                <form action="{{ url_for('call_next_farmer') }}" method="POST">
+                    <button type="submit" class="btn btn-warning text-dark fw-bold shadow-sm"><i class="bi bi-megaphone-fill me-2"></i> Call Next Farmer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card-custom stat-card p-3 h-100">
+                    <span class="text-muted small fw-semibold">Today's Appointments</span>
+                    <h3 class="fw-bold my-1 text-dark">{{ total_today }}</h3>
+                    <small class="text-muted">Total booked for today</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom stat-card stat-warning p-3 h-100">
+                    <span class="text-muted small fw-semibold">Waiting in Queue</span>
+                    <h3 class="fw-bold my-1 text-warning-emphasis">{{ waiting_count }}</h3>
+                    <small class="text-warning"><i class="bi bi-hourglass-split"></i> Awaiting gate/counter</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom stat-card stat-info p-3 h-100">
+                    <span class="text-muted small fw-semibold">Currently In-Process</span>
+                    <h3 class="fw-bold my-1 text-primary">{{ current_token or 'None' }}</h3>
+                    <small class="text-muted">Active at Counter {{ operator.assigned_counter }}</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom stat-card stat-success p-3 h-100">
+                    <span class="text-muted small fw-semibold">Completed Today</span>
+                    <h3 class="fw-bold my-1 text-success">{{ completed_count }}</h3>
+                    <small class="text-success"><i class="bi bi-check-circle"></i> Procured & Recorded</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Farmer Processing Card -->
+        {% if current_booking %}
+        <div class="card-custom p-4 mb-4 bg-white border-start border-primary border-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                    <span class="badge bg-primary px-3 py-1 mb-1">NOW SERVING AT YOUR COUNTER</span>
+                    <h4 class="fw-bold mb-0">Token: <span class="text-primary">{{ current_booking.token_number }}</span> • {{ current_booking.full_name }}</h4>
+                </div>
+                <a href="{{ url_for('update_procurement_status', booking_id=current_booking.id) }}" class="btn btn-success fw-bold shadow-sm">
+                    <i class="bi bi-pencil-square me-1"></i> Update Weighing & Quality
+                </a>
+            </div>
+            <div class="row g-3 bg-light p-3 rounded">
+                <div class="col-md-3">
+                    <small class="text-muted d-block">Farmer UID</small>
+                    <strong>{{ current_booking.farmer_uid }}</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">Mobile Number</small>
+                    <strong>+91 {{ current_booking.mobile_number }}</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">Crop Declared</small>
+                    <strong>{{ current_booking.crop_name }} ({{ current_booking.crop_quantity }} Qtl)</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">Current Stage</small>
+                    <span class="badge bg-warning text-dark">{{ current_booking.status }}</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Today's Live Queue List -->
+        <div class="card-custom p-4 bg-white shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-list-check text-success me-2"></i>Today's Farmer Queue ({{ today_date }})</h5>
+                <a href="{{ url_for('todays_queue') }}" class="btn btn-sm btn-outline-success">Manage Full Queue &rarr;</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Pos</th>
+                            <th>Token</th>
+                            <th>Farmer Details</th>
+                            <th>Crop & Declared Qty</th>
+                            <th>Time Window</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for q in queue_items %}
+                        <tr class="{{ 'table-primary' if current_token and q.token_number == current_token else '' }}">
+                            <td><strong>{{ loop.index }}</strong></td>
+                            <td><span class="badge bg-dark fs-6">{{ q.token_number }}</span></td>
+                            <td>
+                                <strong>{{ q.full_name }}</strong><br>
+                                <small class="text-muted">{{ q.mobile_number }} • {{ q.village }}</small>
+                            </td>
+                            <td>{{ q.crop_name }}<br><small class="text-muted">{{ q.crop_quantity }} Quintals</small></td>
+                            <td><small>{{ q.start_time }} - {{ q.end_time }}</small></td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if q.status == 'Procurement Completed' else ('primary' if q.status in ['In-Process','Calling','Weighing'] else 'warning text-dark') }}">
+                                    {{ q.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url_for('update_procurement_status', booking_id=q.id) }}" class="btn btn-sm btn-success" title="Update Status"><i class="bi bi-pencil-square"></i></a>
+                                    <a href="{{ url_for('farmer_details', farmer_id=q.farmer_id) }}" class="btn btn-sm btn-outline-secondary" title="View Farmer"><i class="bi bi-eye"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="7" class="text-center py-4 text-muted">No appointments booked for today.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

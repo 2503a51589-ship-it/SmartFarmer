@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Payment & DBT Status - SIH26032{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 border-bottom pb-3">
+                    <div>
+                        <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold">DBT SETTLEMENT</span>
+                        <h3 class="fw-bold text-success mb-0"><i class="bi bi-cash-stack me-2"></i>Kisan Direct Payment Status</h3>
+                    </div>
+                    <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+                </div>
+
+                {% if payments %}
+                    {% for p in payments %}
+                    <div class="card-custom p-4 mb-4 border-start border-success border-4 shadow-sm bg-light">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                            <div>
+                                <span class="text-muted small">Token: <strong>{{ p.token_number }}</strong> | Booking Ref: <strong>{{ p.booking_ref }}</strong></span>
+                                <h4 class="fw-bold text-success mb-0">Total Payout: ₹{{ "{:,.2f}".format(p.total_amount) }}</h4>
+                            </div>
+                            <span class="badge bg-{{ 'success' if p.payment_status == 'Credited' else ('warning text-dark' if p.payment_status == 'Processing' else 'secondary') }} fs-6 px-3 py-2">
+                                <i class="bi bi-check-circle-fill me-1"></i> {{ p.payment_status }}
+                            </span>
+                        </div>
+
+                        <div class="row g-3 bg-white p-3 rounded border">
+                            <div class="col-md-3">
+                                <small class="text-muted d-block">Crop Procured</small>
+                                <strong>{{ p.crop_name }}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted d-block">Govt MSP Rate</small>
+                                <strong>₹{{ "{:,.2f}".format(p.msp_rate) }} / Qtl</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted d-block">Net Accepted Quantity</small>
+                                <strong>{{ p.final_accepted_quantity or p.crop_quantity }} Quintals</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted d-block">DBT Transaction ID</small>
+                                <code>{{ p.transaction_ref or 'PENDING_BANK_GATEWAY' }}</code>
+                            </div>
+                            <div class="col-12 border-top pt-2 mt-2">
+                                <small class="text-muted d-block">Bank Status Message:</small>
+                                <span class="text-dark small"><i class="bi bi-bank2 text-primary me-1"></i> {{ p.bank_status }} (A/C: *******{{ farmer.bank_account_no[-4:] if farmer.bank_account_no else 'XXXX' }})</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-wallet2 text-secondary fs-1"></i>
+                    <h5 class="text-muted mt-2">No payment transactions recorded yet</h5>
+                    <p class="small text-muted">Payments are automatically calculated and triggered upon successful crop procurement at the center.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Manage Time Slots - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold">SCHEDULE ENGINE</span>
+                <h3 class="fw-bold text-success mb-0"><i class="bi bi-calendar3 me-2"></i>Procurement Slots & Capacity</h3>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addSlotModal">
+                    <i class="bi bi-plus-circle me-1"></i> Create Time Slot
+                </button>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Center Name</th>
+                        <th>Slot Date</th>
+                        <th>Time Window</th>
+                        <th>Capacity</th>
+                        <th>Booked Farmers</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in slots %}
+                    <tr>
+                        <td><strong>{{ s.center_name }}</strong></td>
+                        <td>{{ s.slot_date }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ s.start_time }} to {{ s.end_time }}</span></td>
+                        <td>{{ s.max_capacity }} farmers</td>
+                        <td><strong class="text-success">{{ s.booked_count }}</strong> booked</td>
+                        <td><span class="badge bg-{{ 'success' if s.booked_count < s.max_capacity else 'danger' }}">{{ 'Available' if s.booked_count < s.max_capacity else 'Full' }}</span></td>
+                        <td>
+                            <form action="{{ url_for('delete_slot', slot_id=s.id) }}" method="POST" onsubmit="return confirm('Delete this slot?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Slot Modal -->
+<div class="modal fade" id="addSlotModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('manage_slots') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-success">Create Procurement Time Slot</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Procurement Center</label>
+                        <select name="center_id" class="form-select" required>
+                            {% for c in centers %}
+                            <option value="{{ c.id }}">{{ c.center_name }} ({{ c.district }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Slot Date</label>
+                        <input type="date" name="slot_date" class="form-control" value="{{ today_date }}" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Start Time</label>
+                            <input type="time" name="start_time" class="form-control" value="09:00" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">End Time</label>
+                            <input type="time" name="end_time" class="form-control" value="11:00" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Max Capacity (Farmers)</label>
+                        <input type="number" name="max_capacity" class="form-control" value="20" min="1" max="100" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success fw-bold">Add Slot</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

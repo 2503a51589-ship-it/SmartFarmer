@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Booking History - SIH26032{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold">APPOINTMENT LOGS</span>
+                <h3 class="fw-bold text-success mb-0"><i class="bi bi-clock-history me-2"></i>My Procurement Booking History</h3>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('book_slot') }}" class="btn btn-success btn-sm fw-bold"><i class="bi bi-plus-circle me-1"></i> Book New Slot</a>
+                <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+            </div>
+        </div>
+
+        {% if bookings %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Booking Ref</th>
+                        <th>Token</th>
+                        <th>Center</th>
+                        <th>Date & Time</th>
+                        <th>Crop & Quantity</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                    <tr>
+                        <td><code>{{ b.booking_ref }}</code></td>
+                        <td><span class="badge bg-dark fs-6">{{ b.token_number }}</span></td>
+                        <td><strong>{{ b.center_name }}</strong><br><small class="text-muted">{{ b.district }}</small></td>
+                        <td>{{ b.slot_date }}<br><small class="text-muted">{{ b.start_time }} - {{ b.end_time }}</small></td>
+                        <td>{{ b.crop_name }}<br><small class="text-muted">{{ b.crop_quantity }} Quintals</small></td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if b.status == 'Procurement Completed' else ('danger' if b.status == 'Cancelled' else 'warning text-dark') }}">
+                                {{ b.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{{ url_for('my_token', booking_id=b.id) }}" class="btn btn-sm btn-outline-primary" title="Print Slip"><i class="bi bi-ticket-perforated"></i></a>
+                                {% if b.status in ['Booked', 'Waiting'] %}
+                                <form action="{{ url_for('cancel_booking', booking_id=b.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancel Booking"><i class="bi bi-x-circle"></i></button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-calendar-x fs-1"></i>
+            <h5 class="mt-2">No bookings recorded yet</h5>
+            <a href="{{ url_for('book_slot') }}" class="btn btn-success mt-2">Book Slot Now</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

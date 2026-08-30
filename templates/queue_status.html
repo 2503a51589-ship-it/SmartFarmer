@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Live Visual Queue - SIH26032{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold">REAL-TIME MONITOR</span>
+            <h3 class="fw-bold text-success mb-0"><i class="bi bi-list-ol me-2"></i>Live Visual Queue Tracking</h3>
+            <p class="text-muted small mb-0">Center: <strong>{{ center.center_name if center else 'All Centers' }}</strong> | Date: <strong>{{ today_date }}</strong></p>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <span class="badge bg-danger rounded-pill px-3 py-2 animate-pulse"><i class="bi bi-record-fill me-1"></i> LIVE SYNC ACTIVE</span>
+            <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Live Telemetry KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card-custom p-3 bg-white stat-card stat-info">
+                <small class="text-muted fw-semibold">Your Token Number</small>
+                <h3 class="fw-bold text-primary my-1">{{ user_token or 'N/A' }}</h3>
+                <small class="text-muted">Counter: {{ active_counter }}</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom p-3 bg-white stat-card stat-warning">
+                <small class="text-muted fw-semibold">People Ahead of You</small>
+                <h3 class="fw-bold text-warning-emphasis my-1" id="live_people_ahead">{{ people_ahead }}</h3>
+                <small class="text-muted">In active waiting line</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom p-3 bg-white stat-card stat-success">
+                <small class="text-muted fw-semibold">Estimated Waiting Time</small>
+                <h3 class="fw-bold text-success my-1" id="live_wait_time">{{ estimated_wait_mins }} mins</h3>
+                <small class="text-muted">Expected turn: {{ expected_time }}</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom p-3 bg-white stat-card">
+                <small class="text-muted fw-semibold">Current Calling Token</small>
+                <h3 class="fw-bold text-dark my-1" id="live_calling_token">{{ calling_token or 'None' }}</h3>
+                <small class="text-success"><i class="bi bi-megaphone-fill"></i> Processing at counter</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Token Pipeline (SIH Innovation visual display) -->
+    <div class="card-custom p-4 bg-white mb-4 shadow-sm">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-diagram-3-fill text-success me-2"></i>Token Progression Pipeline</h5>
+        <div class="queue-pipeline">
+            {% for item in visual_items %}
+                <div class="queue-node {{ 'completed' if item.status == 'Completed' else ('in-process' if item.status in ['In-Process','Calling','Weighing','Quality Checking'] else ('current-farmer' if item.is_current_farmer else 'waiting')) }}">
+                    <div class="small fw-bold text-muted">#{{ item.position_index }}</div>
+                    <div class="fs-4 fw-bold {{ 'text-success' if item.is_current_farmer else 'text-dark' }}">{{ item.token }}</div>
+                    <div class="small fw-semibold mt-1">
+                        {% if item.is_current_farmer %}
+                            <span class="badge bg-success">YOU</span>
+                        {% elif item.status == 'Completed' %}
+                            <span class="badge bg-secondary">Completed</span>
+                        {% elif item.status in ['In-Process','Calling','Weighing'] %}
+                            <span class="badge bg-primary">Processing</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Waiting</span>
+                        {% endif %}
+                    </div>
+                    <small class="text-muted d-block mt-1">{{ item.crop_name }}</small>
+                </div>
+                {% if not loop.last %}
+                    <div class="queue-arrow d-none d-lg-block"><i class="bi bi-arrow-right"></i></div>
+                {% endif %}
+            {% else %}
+                <div class="text-muted text-center w-100 py-4">No tokens currently active in queue today.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Queue Table -->
+    <div class="card-custom p-4 bg-white shadow-sm">
+        <h5 class="fw-bold text-dark mb-3">Complete Center Queue Details</h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Pos</th>
+                        <th>Token</th>
+                        <th>Farmer Name</th>
+                        <th>Crop & Quantity</th>
+                        <th>Assigned Counter</th>
+                        <th>Queue Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in queue_list %}
+                    <tr class="{{ 'table-success' if user_token and q.token_number == user_token else '' }}">
+                        <td><strong>{{ loop.index }}</strong></td>
+                        <td><span class="badge bg-dark fs-6">{{ q.token_number }}</span></td>
+                        <td>
+                            {{ q.full_name }}
+                            {% if user_token and q.token_number == user_token %}
+                                <span class="badge bg-success ms-1">You</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ q.crop_name }} ({{ q.crop_quantity }} Qtl)</td>
+                        <td>Counter #{{ q.counter_assigned or 1 }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'secondary' if q.status == 'Completed' else ('primary' if q.status in ['In-Process','Calling'] else 'warning text-dark') }}">
+                                {{ q.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/queue_live.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    pollQueueUpdates("{{ center.id if center else 1 }}", "{{ user_token or '' }}");
+});
+</script>
+{% endblock %}

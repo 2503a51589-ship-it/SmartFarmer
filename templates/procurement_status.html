@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Procurement Stage Tracking - SIH26032{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <div>
+                        <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold">STAGE MONITOR</span>
+                        <h3 class="fw-bold text-success mb-0"><i class="bi bi-truck me-2"></i>Procurement Inspection & Status</h3>
+                    </div>
+                    <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+                </div>
+
+                {% if booking %}
+                <!-- Stepper Progress Bar -->
+                <div class="timeline-stepper my-4">
+                    <div class="timeline-step {{ 'done' if booking.status in ['Arrived','Weighing','Quality Checking','Accepted','Procurement Completed'] else ('active' if booking.status == 'Booked' else '') }}">
+                        <div class="timeline-step-icon"><i class="bi bi-calendar-check"></i></div>
+                        <div class="timeline-step-title">1. Slot Booked</div>
+                    </div>
+                    <div class="timeline-step {{ 'done' if booking.status in ['Weighing','Quality Checking','Accepted','Procurement Completed'] else ('active' if booking.status == 'Arrived' else '') }}">
+                        <div class="timeline-step-icon"><i class="bi bi-geo-alt"></i></div>
+                        <div class="timeline-step-title">2. Arrived at Gate</div>
+                    </div>
+                    <div class="timeline-step {{ 'done' if booking.status in ['Quality Checking','Accepted','Procurement Completed'] else ('active' if booking.status == 'Weighing' else '') }}">
+                        <div class="timeline-step-icon"><i class="bi bi-speedometer"></i></div>
+                        <div class="timeline-step-title">3. Weighbridge Check</div>
+                    </div>
+                    <div class="timeline-step {{ 'done' if booking.status in ['Accepted','Procurement Completed'] else ('active' if booking.status == 'Quality Checking' else '') }}">
+                        <div class="timeline-step-icon"><i class="bi bi-patch-check"></i></div>
+                        <div class="timeline-step-title">4. Quality & Moisture</div>
+                    </div>
+                    <div class="timeline-step {{ 'done' if booking.status == 'Procurement Completed' else ('active' if booking.status == 'Accepted' else '') }}">
+                        <div class="timeline-step-icon"><i class="bi bi-check2-all"></i></div>
+                        <div class="timeline-step-title">5. Completed</div>
+                    </div>
+                </div>
+
+                <!-- Inspection Summary Cards -->
+                <div class="row g-3 bg-light p-4 rounded mb-4">
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Token Number</small>
+                        <h4 class="fw-bold text-success mb-0">{{ booking.token_number }}</h4>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Center Name</small>
+                        <strong>{{ booking.center_name }}</strong>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Crop & Declared Qty</small>
+                        <strong>{{ booking.crop_name }} ({{ booking.crop_quantity }} Qtl)</strong>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Current Stage</small>
+                        <span class="badge bg-success fs-6">{{ booking.status }}</span>
+                    </div>
+                </div>
+
+                {% if record %}
+                <!-- Detailed Quality Verification Ledger -->
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-clipboard2-check text-primary me-2"></i>Official Inspection Results</h5>
+                <div class="table-responsive border rounded mb-4">
+                    <table class="table table-bordered mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="bg-light" width="30%">Actual Weighbridge Quantity:</th>
+                                <td><strong class="text-dark fs-6">{{ record.actual_quantity }} Quintals</strong></td>
+                                <th class="bg-light" width="25%">Quality Grade Assigned:</th>
+                                <td><span class="badge bg-primary fs-6">{{ record.quality_grade }}</span></td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Moisture Content Tested:</th>
+                                <td>{{ record.moisture_content }}% <small class="text-muted">(Standard allowable &le; 12.0%)</small></td>
+                                <th class="bg-light">Quality Deduction:</th>
+                                <td>{{ record.deduction_percentage }}%</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Final Accepted Net Weight:</th>
+                                <td colspan="3"><strong class="text-success fs-5">{{ record.final_accepted_quantity }} Quintals</strong></td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Operator Remarks:</th>
+                                <td colspan="3">{{ record.remarks or 'Inspection successfully verified under standard procurement protocol.' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div class="text-center py-5">
+                    <h5 class="text-muted">No active procurement in progress</h5>
+                    <p class="small text-muted">Book a slot to start your crop procurement workflow.</p>
+                    <a href="{{ url_for('book_slot') }}" class="btn btn-success">Book Slot</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

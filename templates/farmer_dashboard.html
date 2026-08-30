@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}Farmer Dashboard - SIH26032{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <div class="dashboard-sidebar">
+        <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+            <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-person"></i></div>
+            <div>
+                <h6 class="mb-0 fw-bold">{{ farmer.full_name }}</h6>
+                <small class="text-muted">{{ farmer.farmer_uid }}</small>
+            </div>
+        </div>
+        <div class="nav flex-column">
+            <a href="{{ url_for('farmer_dashboard') }}" class="sidebar-nav-item active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="{{ url_for('book_slot') }}" class="sidebar-nav-item"><i class="bi bi-calendar-plus"></i> Book Procurement Slot</a>
+            <a href="{{ url_for('my_token') }}" class="sidebar-nav-item"><i class="bi bi-ticket-perforated"></i> Today's Token Slip</a>
+            <a href="{{ url_for('queue_status') }}" class="sidebar-nav-item"><i class="bi bi-list-ol"></i> Live Visual Queue</a>
+            <a href="{{ url_for('procurement_status') }}" class="sidebar-nav-item"><i class="bi bi-truck"></i> Procurement Status</a>
+            <a href="{{ url_for('payment_status') }}" class="sidebar-nav-item"><i class="bi bi-cash-stack"></i> DBT Payment Ledger</a>
+            <a href="{{ url_for('booking_history') }}" class="sidebar-nav-item"><i class="bi bi-clock-history"></i> Booking History</a>
+            <a href="{{ url_for('farmer_profile') }}" class="sidebar-nav-item"><i class="bi bi-gear"></i> Profile & Bank Details</a>
+        </div>
+    </div>
+
+    <!-- Dashboard Main Area -->
+    <div class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold text-success mb-0">Farmer Portal Overview</h3>
+                <p class="text-muted small mb-0">Welcome, {{ farmer.full_name }} | District: <strong>{{ farmer.district }}</strong>, Village: <strong>{{ farmer.village }}</strong></p>
+            </div>
+            <a href="{{ url_for('book_slot') }}" class="btn btn-success fw-bold shadow-sm"><i class="bi bi-plus-circle me-2"></i> Book New Slot</a>
+        </div>
+
+        <!-- Smart Recommendation Card (SIH Innovation) -->
+        {% if smart_rec %}
+        <div class="smart-recommendation-card p-4 mb-4 shadow-sm">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-success"><i class="bi bi-lightbulb-fill me-1"></i> SMART RECOMMENDATION</span>
+                        <span class="congestion-badge {{ 'congestion-low' if smart_rec.congestion_level == 'LOW CONGESTION' else ('congestion-medium' if smart_rec.congestion_level == 'MEDIUM CONGESTION' else 'congestion-high') }}">
+                            <i class="bi bi-activity"></i> {{ smart_rec.congestion_level }}
+                        </span>
+                    </div>
+                    <h5 class="fw-bold text-success mb-1">Recommended Center: {{ smart_rec.center_name }}</h5>
+                    <p class="text-secondary small mb-2">{{ smart_rec.reason }}</p>
+                    <div class="d-flex gap-4 small fw-semibold">
+                        <div><i class="bi bi-people text-primary me-1"></i> Current Queue: <span class="text-dark">{{ smart_rec.current_queue }} farmers</span></div>
+                        <div><i class="bi bi-stopwatch text-warning me-1"></i> Estimated Waiting Time: <span class="text-dark">{{ smart_rec.estimated_waiting_time }} mins</span></div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <a href="{{ url_for('book_slot', center_id=smart_rec.center_id) }}" class="btn btn-success btn-sm px-3 fw-bold">Select This Center</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Metric KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-2">
+                <div class="card-custom stat-card p-3 h-100">
+                    <span class="text-muted small fw-semibold">Total Bookings</span>
+                    <h3 class="fw-bold my-1 text-dark">{{ total_bookings }}</h3>
+                    <small class="text-success"><i class="bi bi-check2-circle"></i> Lifetime records</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card-custom stat-card stat-info p-3 h-100">
+                    <span class="text-muted small fw-semibold">Today's Token</span>
+                    <h3 class="fw-bold my-1 text-primary">{{ active_booking.token_number if active_booking else 'N/A' }}</h3>
+                    <small class="text-muted">{{ active_booking.slot_date if active_booking else 'No active token' }}</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card-custom stat-card stat-warning p-3 h-100">
+                    <span class="text-muted small fw-semibold">Queue Position</span>
+                    <h3 class="fw-bold my-1 text-warning-emphasis">{{ active_queue.position if active_queue else 'N/A' }}</h3>
+                    <small class="text-muted">{{ (people_ahead ~ ' people ahead') if active_booking else 'No queue' }}</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card-custom stat-card stat-success p-3 h-100">
+                    <span class="text-muted small fw-semibold">Est. Waiting Time</span>
+                    <h3 class="fw-bold my-1 text-success">{{ estimated_wait_mins if active_booking else 0 }} <small class="fs-6">min</small></h3>
+                    <small class="text-muted">{{ expected_time if active_booking else '--:--' }}</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card-custom stat-card stat-info p-3 h-100">
+                    <span class="text-muted small fw-semibold">Procurement Status</span>
+                    <h5 class="fw-bold my-2 text-dark">{{ active_booking.status if active_booking else 'N/A' }}</h5>
+                    <small class="text-primary"><a href="{{ url_for('procurement_status') }}" class="text-decoration-none">Track stages &rarr;</a></small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card-custom stat-card stat-success p-3 h-100">
+                    <span class="text-muted small fw-semibold">Payment Status</span>
+                    <h5 class="fw-bold my-2 text-success">{{ active_payment.payment_status if active_payment else 'No Payout' }}</h5>
+                    <small class="text-muted"><a href="{{ url_for('payment_status') }}" class="text-decoration-none">View DBT &rarr;</a></small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Appointment Spotlight Card (If Active) -->
+        {% if active_booking %}
+        <div class="card-custom p-4 mb-4 bg-white border-start border-success border-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <div>
+                    <span class="badge bg-primary px-3 py-1 mb-1">ACTIVE APPOINTMENT</span>
+                    <h4 class="fw-bold mb-0">Token: <span class="text-success">{{ active_booking.token_number }}</span> • {{ active_booking.center_name }}</h4>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('my_token') }}" class="btn btn-outline-success btn-sm"><i class="bi bi-printer me-1"></i> Print Token Slip</a>
+                    <a href="{{ url_for('queue_status') }}" class="btn btn-success btn-sm"><i class="bi bi-eye me-1"></i> View Visual Queue</a>
+                </div>
+            </div>
+            <div class="row g-3 bg-light p-3 rounded">
+                <div class="col-md-3">
+                    <small class="text-muted d-block">Center Location</small>
+                    <strong>{{ active_booking.center_name }}</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">Appointment Date & Window</small>
+                    <strong>{{ active_booking.slot_date }} ({{ active_booking.start_time }} - {{ active_booking.end_time }})</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">Crop & Declared Quantity</small>
+                    <strong>{{ active_booking.crop_name }} • {{ active_booking.crop_quantity }} Quintals</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">Current Queue Status</small>
+                    <span class="badge bg-warning text-dark">{{ active_booking.status }} ({{ people_ahead }} ahead)</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions & Recent History -->
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card-custom p-4 bg-white shadow-sm h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-calendar-check text-success me-2"></i>Recent Slot Bookings</h5>
+                        <a href="{{ url_for('booking_history') }}" class="btn btn-link text-success p-0 small">View All &rarr;</a>
+                    </div>
+                    {% if recent_bookings %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Token</th>
+                                    <th>Center</th>
+                                    <th>Date & Time</th>
+                                    <th>Crop (Qty)</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in recent_bookings %}
+                                <tr>
+                                    <td><span class="badge bg-dark fw-bold">{{ b.token_number }}</span></td>
+                                    <td><small>{{ b.center_name }}</small></td>
+                                    <td><small>{{ b.slot_date }}<br>{{ b.start_time }}</small></td>
+                                    <td>{{ b.crop_name }}<br><small class="text-muted">{{ b.crop_quantity }} Qtl</small></td>
+                                    <td><span class="badge bg-{{ 'success' if b.status == 'Procurement Completed' else ('warning text-dark' if b.status in ['Booked','Arrived','Weighing'] else 'secondary') }}">{{ b.status }}</span></td>
+                                    <td>
+                                        <a href="{{ url_for('my_token', booking_id=b.id) }}" class="btn btn-sm btn-outline-secondary" title="View Token"><i class="bi bi-ticket-detailed"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-calendar-x fs-1 text-secondary"></i>
+                        <p class="mt-2 mb-0">No booking records found. Click below to book your first slot!</p>
+                        <a href="{{ url_for('book_slot') }}" class="btn btn-success btn-sm mt-3">Book Slot Now</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-custom p-4 bg-white shadow-sm h-100">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-shield-check text-success me-2"></i>Farmer Checklist</h5>
+                    <ul class="list-unstyled small text-secondary">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Bring digital token slip or SMS code.</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Keep grain moisture below 12-14% to avoid deductions.</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Ensure tractor weighbridge gross & tare slips are verified.</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> DBT funds are directly credited to your linked Aadhaar bank account.</li>
+                    </ul>
+                    <div class="alert alert-info py-2 px-3 small mt-3 mb-0">
+                        <i class="bi bi-info-circle-fill me-1"></i> Need help rescheduling? Call Kisan Call Center at <strong>1800-180-1551</strong>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

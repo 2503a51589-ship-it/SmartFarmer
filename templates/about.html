@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}About the System - SIH26032{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card-custom p-5 bg-white shadow-sm">
+                <span class="badge bg-success px-3 py-2 rounded-pill fw-bold mb-2">SIH26032 PROBLEM STATEMENT</span>
+                <h1 class="fw-bold mb-3">Smart Farmer Procurement & Queue System</h1>
+                <p class="lead text-secondary">A next-generation digital agriculture procurement ecosystem designed to eliminate Mandi congestion, ensure price realization for farmers, and streamline government MSP procurement workflows.</p>
+                <hr class="my-4">
+
+                <h4 class="fw-bold text-success">1. The Problem in Traditional Mandi Procurement</h4>
+                <p class="text-muted">During peak harvesting seasons, farmers transporting tractor-trolleys loaded with wheat, paddy, and oilseeds face severe bottlenecks outside government APMC mandis and PACS centers. Unregulated arrivals lead to waiting times of 12 to 36 hours, spoilage due to sudden rains, and exploitation by middlemen.</p>
+
+                <h4 class="fw-bold text-success mt-4">2. Our Digital Innovation (SIH26032 Solution)</h4>
+                <p class="text-muted">The Smart Farmer Procurement System introduces intelligent capacity forecasting and queue scheduling:</p>
+                <ul class="text-muted">
+                    <li><strong>Smart Queue Prediction Engine:</strong> Dynamically calculates waiting time using active counter throughput: <code>Wait Time = (People Ahead / Counters) × Average Processing Time</code>.</li>
+                    <li><strong>Congestion AI Recommender:</strong> Evaluates district-wide centers in real-time and steers farmers to less crowded facilities.</li>
+                    <li><strong>Transparent Weighing & DBT Ledger:</strong> Complete audit trail from slot booking to electronic weighbridge, moisture test, and Direct Benefit Transfer into the farmer's bank account.</li>
+                </ul>
+
+                <h4 class="fw-bold text-success mt-4">3. Stakeholder Roles</h4>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded border">
+                            <h6 class="fw-bold text-dark"><i class="bi bi-person-fill text-success"></i> Farmers</h6>
+                            <p class="small text-muted mb-0">Register crops, select preferred centers, track live queue tokens, and view payment settlement status.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded border">
+                            <h6 class="fw-bold text-dark"><i class="bi bi-person-badge-fill text-primary"></i> Center Operators</h6>
+                            <p class="small text-muted mb-0">Call next tokens, log weighbridge weight, record quality inspection grades, and approve procurement vouchers.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded border">
+                            <h6 class="fw-bold text-dark"><i class="bi bi-shield-check text-warning"></i> Govt Admins</h6>
+                            <p class="small text-muted mb-0">Configure center slots, monitor district-level queue congestion heatmaps, and oversee multi-crore DBT payouts.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
