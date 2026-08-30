@@ -12,7 +12,9 @@ def try_mysql_connection():
             host=Config.MYSQL_HOST,
             port=Config.MYSQL_PORT,
             user=Config.MYSQL_USER,
-            password=Config.MYSQL_PASSWORD
+            password=Config.MYSQL_PASSWORD,
+            ssl_disabled=False,
+            ssl_verify_cert=False
         )
         cursor = conn.cursor()
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{Config.MYSQL_DB}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
@@ -25,11 +27,14 @@ def try_mysql_connection():
             user=Config.MYSQL_USER,
             password=Config.MYSQL_PASSWORD,
             database=Config.MYSQL_DB,
-            autocommit=True
+            autocommit=True,
+            ssl_disabled=False,
+            ssl_verify_cert=False
         )
         return db_conn
     except Exception as e:
         # If MySQL connection fails (e.g. custom root password or not running), we safely log and fallback
+        print(f"[MySQL connection failed, falling back to SQLite]: {e}")
         return None
 
 def get_db():
@@ -269,4 +274,3 @@ def init_db():
         cursor.executescript(sqlite_schema)
         conn.commit()
         conn.close()
-
