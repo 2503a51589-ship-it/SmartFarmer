@@ -13,8 +13,9 @@ def try_mysql_connection():
             port=Config.MYSQL_PORT,
             user=Config.MYSQL_USER,
             password=Config.MYSQL_PASSWORD,
-            ssl_disabled=False,
-            ssl_verify_cert=False
+                        ssl_disabled=False,
+            ssl_verify_cert=False,
+            connection_timeout=5
         )
         cursor = conn.cursor()
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{Config.MYSQL_DB}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
@@ -28,8 +29,9 @@ def try_mysql_connection():
             password=Config.MYSQL_PASSWORD,
             database=Config.MYSQL_DB,
             autocommit=True,
-            ssl_disabled=False,
-            ssl_verify_cert=False
+                        ssl_disabled=False,
+            ssl_verify_cert=False,
+            connection_timeout=5
         )
         return db_conn
     except Exception as e:
