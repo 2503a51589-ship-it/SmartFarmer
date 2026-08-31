@@ -296,8 +296,9 @@ def farmer_dashboard():
     )
 
 @app.route('/farmer/book_slot', methods=['GET', 'POST'])
+@role_required('farmer')
 def book_slot():
-    return "HELLO WORLD - SIMPLEST POSSIBLE TEST, NO DECORATOR, NO LOGIC"
+    return "STEP 2 - with role_required decorator only"
 
 @app.route('/farmer/my_token')
 @app.route('/farmer/my_token/<int:booking_id>')
