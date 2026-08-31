@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block title %}Book Procurement Slot - SIH26032{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card-custom p-4 p-md-5 bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 flex-wrap gap-2">
+                    <div>
+                        <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold">ONLINE
+                            APPOINTMENT</span>
+                        <h3 class="fw-bold text-success mb-0">Book Crop Procurement Slot</h3>
+                    </div>
+                    <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-outline-secondary btn-sm"><i
+                            class="bi bi-arrow-left me-1"></i> Back to Dashboard</a>
+                </div>
+
+                <form action="{{ url_for('book_slot') }}" method="POST" id="booking_form">
+                    <!-- Step 1: Crop Selection -->
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-flower1 text-success me-2"></i> 1. Crop & Yield
+                        Details</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Select Crop to Procure <span
+                                    class="text-danger">*</span></label>
+                            <select name="crop_id" id="crop_select" class="form-select" required>
+                                <option value="" disabled selected>-- Select Approved MSP Crop --</option>
+                                <option value="1" data-msp="2275" data-unit="Quintal">Wheat (MSP: ₹2275/Quintal)</option>
+                                <option value="2" data-msp="2183" data-unit="Quintal">Paddy (MSP: ₹2183/Quintal)</option>
+                                <option value="3" data-msp="7121" data-unit="Quintal">Cotton (MSP: ₹7121/Quintal)</option>
+                                {% for cr in crops %}
+                                <option value="{{ cr.id }}" data-msp="{{ cr.msp_per_quintal }}"
+                                    data-unit="{{ cr.unit }}">
+                                    {{ cr.crop_name }} (MSP: ₹{{ cr.msp_per_quintal }}/{{ cr.unit }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Quantity (Quintals) <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" step="0.5" min="1" max="1000" name="crop_quantity" id="crop_quantity"
+                                class="form-control" placeholder="e.g. 50" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Harvest Date <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" name="harvest_date" class="form-control" value="{{ today_date }}"
+                                required>
+                        </div>
+                        <div class="col-12">
+                            <div id="msp_calculated_display" class="alert alert-success py-2 px-3 small mb-0">
+                                <em>Select a crop and enter quantity to see estimated government MSP value.</em>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Center & Slot Selection -->
+                    <h5 class="fw-bold text-dark mb-3 border-top pt-3"><i class="bi bi-geo-alt text-primary me-2"></i>
+                        2. Procurement Center & Time Window</h5>
+
+                    <!-- Congestion Advisory Preview -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Select Procurement Center <span
+                                    class="text-danger">*</span></label>
+                            <select name="center_id" id="center_select" class="form-select" onchange="filterSlots()"
+                                required>
+                                <option value="" disabled selected>-- Select Procurement Center --</option>
+                                <option value="1">Anand Central Mandi Procurement Hub (Anand)</option>
+                                <option value="2">Navsari Kisan Samiti Procurement Center (Navsari)</option>
+                                <option value="3">Patan Krishi Upaj Mandi Center (Patan)</option>
+                                <option value="4">Vadodara PACS Regional Procurement Point (Vadodara)</option>
+                                <option value="5">Rajkot Grain Mandi Direct Counter (Rajkot)</option>
+                                <option value="6">Surat Kisan Mandi Procurement Center (Surat)</option>
+                                <option value="7">Ahmedabad APMC Central Yard (Ahmedabad)</option>
+                                <option value="8">Bhavnagar Grain Procurement Hub (Bhavnagar)</option>
+                                <option value="9">Junagadh Krishi Upaj Mandi (Junagadh)</option>
+                                <option value="10">Mehsana PACS Regional Center (Mehsana)</option>
+                                <option value="11">Gandhinagar State Procurement Point (Gandhinagar)</option>
+                                <option value="12">Jamnagar Coastal Mandi Center (Jamnagar)</option>
+                                {% for c in centers %}
+                                <option value="{{ c.id }}" {% if selected_center_id and selected_center_id|int==c.id
+                                    %}selected{% endif %}>
+                                    {{ c.center_name }} ({{ c.district }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Available Date & Time Slot <span
+                                    class="text-danger">*</span></label>
+                            <select name="slot_id" id="slot_select" class="form-select" required>
+                                <option value="" disabled selected>-- Select a Center First --</option>
+                                <option value="1" data-center="1">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/20)</option>
+                                <option value="2" data-center="1">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/20)</option>
+                                <option value="3" data-center="1">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/20)</option>
+                                <option value="4" data-center="1">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/20)</option>
+                                <option value="5" data-center="1">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/20)</option>
+                                <option value="6" data-center="1">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/20)</option>
+                                <option value="7" data-center="1">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/20)</option>
+                                <option value="8" data-center="1">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/20)</option>
+                                <option value="9" data-center="2">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/15)</option>
+                                <option value="10" data-center="2">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/15)</option>
+                                <option value="11" data-center="2">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/15)</option>
+                                <option value="12" data-center="2">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/15)</option>
+                                <option value="13" data-center="2">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/15)</option>
+                                <option value="14" data-center="2">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/15)</option>
+                                <option value="15" data-center="2">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/15)</option>
+                                <option value="16" data-center="2">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/15)</option>
+                                <option value="17" data-center="3">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/18)</option>
+                                <option value="18" data-center="3">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/18)</option>
+                                <option value="19" data-center="3">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/18)</option>
+                                <option value="20" data-center="3">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/18)</option>
+                                <option value="21" data-center="3">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/18)</option>
+                                <option value="22" data-center="3">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/18)</option>
+                                <option value="23" data-center="3">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/18)</option>
+                                <option value="24" data-center="3">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/18)</option>
+                                <option value="25" data-center="4">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/14)</option>
+                                <option value="26" data-center="4">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/14)</option>
+                                <option value="27" data-center="4">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/14)</option>
+                                <option value="28" data-center="4">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/14)</option>
+                                <option value="29" data-center="4">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/14)</option>
+                                <option value="30" data-center="4">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/14)</option>
+                                <option value="31" data-center="4">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/14)</option>
+                                <option value="32" data-center="4">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/14)</option>
+                                <option value="33" data-center="5">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/10)</option>
+                                <option value="34" data-center="5">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/10)</option>
+                                <option value="35" data-center="5">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/10)</option>
+                                <option value="36" data-center="5">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/10)</option>
+                                <option value="37" data-center="5">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/10)</option>
+                                <option value="38" data-center="5">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/10)</option>
+                                <option value="39" data-center="5">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/10)</option>
+                                <option value="40" data-center="5">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/10)</option>
+                                <option value="41" data-center="6">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/12)</option>
+                                <option value="42" data-center="6">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/12)</option>
+                                <option value="43" data-center="6">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/12)</option>
+                                <option value="44" data-center="6">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/12)</option>
+                                <option value="45" data-center="6">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/12)</option>
+                                <option value="46" data-center="6">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/12)</option>
+                                <option value="47" data-center="6">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/12)</option>
+                                <option value="48" data-center="6">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/12)</option>
+                                <option value="49" data-center="7">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/16)</option>
+                                <option value="50" data-center="7">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/16)</option>
+                                <option value="51" data-center="7">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/16)</option>
+                                <option value="52" data-center="7">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/16)</option>
+                                <option value="53" data-center="7">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/16)</option>
+                                <option value="54" data-center="7">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/16)</option>
+                                <option value="55" data-center="7">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/16)</option>
+                                <option value="56" data-center="7">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/16)</option>
+                                <option value="57" data-center="8">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/10)</option>
+                                <option value="58" data-center="8">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/10)</option>
+                                <option value="59" data-center="8">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/10)</option>
+                                <option value="60" data-center="8">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/10)</option>
+                                <option value="61" data-center="8">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/10)</option>
+                                <option value="62" data-center="8">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/10)</option>
+                                <option value="63" data-center="8">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/10)</option>
+                                <option value="64" data-center="8">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/10)</option>
+                                <option value="65" data-center="9">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/13)</option>
+                                <option value="66" data-center="9">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/13)</option>
+                                <option value="67" data-center="9">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/13)</option>
+                                <option value="68" data-center="9">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/13)</option>
+                                <option value="69" data-center="9">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/13)</option>
+                                <option value="70" data-center="9">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/13)</option>
+                                <option value="71" data-center="9">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/13)</option>
+                                <option value="72" data-center="9">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/13)</option>
+                                <option value="73" data-center="10">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/11)</option>
+                                <option value="74" data-center="10">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/11)</option>
+                                <option value="75" data-center="10">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/11)</option>
+                                <option value="76" data-center="10">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/11)</option>
+                                <option value="77" data-center="10">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/11)</option>
+                                <option value="78" data-center="10">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/11)</option>
+                                <option value="79" data-center="10">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/11)</option>
+                                <option value="80" data-center="10">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/11)</option>
+                                <option value="81" data-center="11">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/14)</option>
+                                <option value="82" data-center="11">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/14)</option>
+                                <option value="83" data-center="11">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/14)</option>
+                                <option value="84" data-center="11">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/14)</option>
+                                <option value="85" data-center="11">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/14)</option>
+                                <option value="86" data-center="11">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/14)</option>
+                                <option value="87" data-center="11">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/14)</option>
+                                <option value="88" data-center="11">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/14)</option>
+                                <option value="89" data-center="12">Date: 2026-09-02 | 09:00 - 11:00 (Capacity: 0/9)</option>
+                                <option value="90" data-center="12">Date: 2026-09-02 | 11:00 - 13:00 (Capacity: 0/9)</option>
+                                <option value="91" data-center="12">Date: 2026-09-02 | 13:30 - 15:30 (Capacity: 0/9)</option>
+                                <option value="92" data-center="12">Date: 2026-09-02 | 15:30 - 17:30 (Capacity: 0/9)</option>
+                                <option value="93" data-center="12">Date: 2026-09-03 | 09:00 - 11:00 (Capacity: 0/9)</option>
+                                <option value="94" data-center="12">Date: 2026-09-03 | 11:00 - 13:00 (Capacity: 0/9)</option>
+                                <option value="95" data-center="12">Date: 2026-09-03 | 13:30 - 15:30 (Capacity: 0/9)</option>
+                                <option value="96" data-center="12">Date: 2026-09-03 | 15:30 - 17:30 (Capacity: 0/9)</option>
+                                {% for s in slots %}
+                                <option value="{{ s.id }}" data-center="{{ s.center_id }}">
+                                    Date: {{ s.slot_date }} | {{ s.start_time }} - {{ s.end_time }} (Capacity: {{
+                                    s.booked_count }}/{{ s.max_capacity }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Special Remarks / Vehicle Number (Optional)</label>
+                            <input type="text" name="notes" class="form-control"
+                                placeholder="e.g. Tractor GJ-07-AB-1234 / 2 Trolleys">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-3 border-top pt-3">
+                        <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-light px-4">Cancel</a>
+                        <button type="submit" class="btn btn-success px-5 fw-bold shadow-sm"><i
+                                class="bi bi-ticket-perforated me-2"></i> Confirm Slot & Generate Token</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterSlots() {
+        const centerSelect = document.getElementById('center_select');
+        const slotSelect = document.getElementById('slot_select');
+        const selectedCenter = centerSelect.value;
+
+        let firstValid = null;
+        for (let i = 0; i < slotSelect.options.length; i++) {
+            const opt = slotSelect.options[i];
+            if (!opt.dataset.center) continue;
+            if (opt.dataset.center === selectedCenter) {
+                opt.style.display = '';
+                if (!firstValid) firstValid = opt;
+            } else {
+                opt.style.display = 'none';
+            }
+        }
+        if (firstValid) {
+            firstValid.selected = true;
+        }
+    }
+    document.addEventListener('DOMContentLoaded', filterSlots);
+</script>
+{% endblock %}
+
