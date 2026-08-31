@@ -308,7 +308,8 @@ def book_slot():
         "SELECT * FROM slots WHERE slot_date >= %s AND is_active = 1 ORDER BY slot_date ASC, start_time ASC",
         (today,)
     ) or []
-    return f"STEP 3 - queries done. crops={len(crops)} centers={len(centers)} slots={len(slots)} farmer={farmer}"
+    from flask import render_template_string
+    return render_template_string("<h1>STEP 4 - fake template works. Crops: {{ crops|length }}</h1>", crops=crops, centers=centers, slots=slots)
 
 @app.route('/farmer/my_token')
 @app.route('/farmer/my_token/<int:booking_id>')
