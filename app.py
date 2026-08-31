@@ -356,15 +356,18 @@ def book_slot():
         (today,)
     ) or []
 
-    return "TEST OK - reached the end of book_slot GET"
-    return render_template(
-        'book_slot.html',
-        crops=crops,
-        centers=centers,
-        slots=slots,
-        selected_center_id=selected_center_id,
-        today_date=today.strftime('%Y-%m-%d')
-    )
+    try:
+        return render_template(
+            'book_slot.html',
+            crops=crops,
+            centers=centers,
+            slots=slots,
+            selected_center_id=selected_center_id,
+            today_date=today.strftime('%Y-%m-%d')
+        )
+    except Exception as e:
+        import traceback
+        return f"<pre>{traceback.format_exc()}</pre>"
 
 @app.route('/farmer/my_token')
 @app.route('/farmer/my_token/<int:booking_id>')
