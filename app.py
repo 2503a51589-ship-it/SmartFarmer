@@ -356,6 +356,7 @@ def book_slot():
         (today,)
     ) or []
 
+    return "TEST OK - reached the end of book_slot GET"
     return render_template(
         'book_slot.html',
         crops=crops,
