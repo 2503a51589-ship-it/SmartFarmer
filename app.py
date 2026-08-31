@@ -310,7 +310,6 @@ def book_slot():
         slot_id = request.form.get('slot_id')
         notes = request.form.get('notes', '')
 
-        # Validate slot capacity
         slot = query_db("SELECT * FROM slots WHERE id = %s AND is_active = 1", (slot_id,), one=True)
         if not slot:
             flash('Selected time slot is invalid or no longer available.', 'danger')
@@ -320,11 +319,9 @@ def book_slot():
             flash('Selected time slot is full. Please choose another slot or center.', 'warning')
             return redirect(url_for('book_slot'))
 
-        # Generate unique references & token number
         booking_ref = generate_booking_ref()
         token_number = generate_token_number(center_id, slot['slot_date'])
-        
-        # Position in queue for this center today
+
         existing_q_count = query_db(
             "SELECT COUNT(*) as c FROM queue WHERE center_id = %s AND queue_date = %s",
             (center_id, slot['slot_date']),
@@ -332,7 +329,6 @@ def book_slot():
         )
         queue_pos = (existing_q_count['c'] if existing_q_count else 0) + 1
 
-        # Create Booking
         booking_id = query_db(
             """INSERT INTO bookings (booking_ref, farmer_id, center_id, slot_id, crop_id, crop_quantity, harvest_date, token_number, queue_number, status, notes)
                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'Booked', %s)""",
@@ -340,7 +336,6 @@ def book_slot():
             commit=True
         )
 
-        # Create Queue entry
         query_db(
             """INSERT INTO queue (center_id, booking_id, queue_date, token_number, position, status, counter_assigned)
                VALUES (%s, %s, %s, %s, %s, 'Waiting', 1)""",
@@ -348,13 +343,11 @@ def book_slot():
             commit=True
         )
 
-        # Increment booked count on slot
         query_db("UPDATE slots SET booked_count = booked_count + 1 WHERE id = %s", (slot_id,), commit=True)
 
         flash(f"Slot booked successfully! Your Token Number is {token_number} (Ref: {booking_ref}).", 'success')
         return redirect(url_for('my_token', booking_id=booking_id))
 
-    # GET Request
     selected_center_id = request.args.get('center_id')
     crops = query_db("SELECT * FROM crops ORDER BY crop_name ASC") or []
     centers = query_db("SELECT * FROM procurement_centers WHERE is_active = 1 ORDER BY center_name ASC") or []
